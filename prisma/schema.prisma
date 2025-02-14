@@ -1,0 +1,154 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String         @id @default(cuid()) // Unique identifier
+  username  String         @unique // Username (must be unique)
+  email     String         @unique // Email (must be unique)
+  password  String // Hashed password
+  role      Role           @default(USER) // User role (e.g., USER or ADMIN)
+  createdAt DateTime       @default(now()) // Timestamp for creation
+  updatedAt DateTime       @updatedAt // Timestamp for last update
+  orders    Order[] // Orders placed by the user
+  cart      CartItem[] // Items in the user's cart
+  wishlist  WishlistItem[] // Items in the user's wishlist
+  reviews   Review[] // Reviews written by the user
+  refreshTokens RefreshToken[] // Refresh tokens associated with the user
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement()) // Unique identifier
+  token     String   @unique // Refresh token (must be unique)
+  userId    String   // Foreign key to the User model
+  user      User     @relation(fields: [userId], references: [id]) // Relationship to User
+  createdAt DateTime @default(now()) // Timestamp for creation
+  updatedAt DateTime @updatedAt // Timestamp for last update
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Product {
+  id            String         @id @default(cuid()) // Unique identifier
+  name          String // Product name
+  description   String? // Optional product description
+  price         Float // Price of the product
+  category      Category?      @relation(fields: [categoryId], references: [id]) // Associated category
+  categoryId    String? // Foreign key for category
+  stock         Int // Available stock
+  images        String[] // URLs of product images
+  reviews       Review[] // Reviews for the product
+  cartItems     CartItem[] // Cart items referencing this product
+  orderItems    OrderItem[] // Order items referencing this product
+  wishlistItems WishlistItem[] // Wishlist items referencing this product
+  createdAt     DateTime       @default(now()) // Timestamp for creation
+  updatedAt     DateTime       @updatedAt // Timestamp for last update
+}
+
+model Category {
+  id          String    @id @default(cuid()) // Unique identifier
+  name        String // Category name
+  description String? // Optional category description
+  products    Product[] // Products in this category
+  createdAt   DateTime  @default(now()) // Timestamp for creation
+  updatedAt   DateTime  @updatedAt // Timestamp for last update
+}
+
+model CartItem {
+  id        String   @id @default(cuid()) // Unique identifier
+  userId    String // ID of the user who owns the cart item
+  user      User     @relation(fields: [userId], references: [id]) // Relationship to User
+  productId String // ID of the product in the cart
+  product   Product  @relation(fields: [productId], references: [id]) // Relationship to Product
+  quantity  Int // Quantity of the product in the cart
+  createdAt DateTime @default(now()) // Timestamp for creation
+  updatedAt DateTime @updatedAt // Timestamp for last update
+
+  @@unique([userId, productId]) // A user can only have one entry per product
+}
+
+model Order {
+  id          String      @id @default(cuid()) // Unique identifier
+  userId      String // ID of the user who placed the order
+  user        User        @relation(fields: [userId], references: [id]) // Relationship to User
+  items       OrderItem[] // Items in the order
+  totalAmount Float // Total amount of the order
+  status      OrderStatus @default(PENDING) // Status of the order (e.g., PENDING, SHIPPED, DELIVERED)
+  payment     Payment? // Payment associated with the order
+  createdAt   DateTime    @default(now()) // Timestamp for creation
+  updatedAt   DateTime    @updatedAt // Timestamp for last update
+}
+
+enum OrderStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model OrderItem {
+  id        String   @id @default(cuid()) // Unique identifier
+  orderId   String // ID of the order
+  order     Order    @relation(fields: [orderId], references: [id]) // Relationship to Order
+  productId String // ID of the product
+  product   Product  @relation(fields: [productId], references: [id]) // Relationship to Product
+  quantity  Int // Quantity of the product in the order
+  price     Float // Price of the product at the time of purchase
+  createdAt DateTime @default(now()) // Timestamp for creation
+  updatedAt DateTime @updatedAt // Timestamp for last update
+}
+
+model Review {
+  id        String   @id @default(cuid()) // Unique identifier
+  userId    String // ID of the user who wrote the review
+  user      User     @relation(fields: [userId], references: [id]) // Relationship to User
+  productId String // ID of the product being reviewed
+  product   Product  @relation(fields: [productId], references: [id]) // Relationship to Product
+  rating    Int // Rating (e.g., 1-5)
+  comment   String? // Optional comment
+  createdAt DateTime @default(now()) // Timestamp for creation
+  updatedAt DateTime @updatedAt // Timestamp for last update
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid()) // Unique identifier
+  userId    String // ID of the user who owns the wishlist item
+  user      User     @relation(fields: [userId], references: [id]) // Relationship to User
+  productId String // ID of the product in the wishlist
+  product   Product  @relation(fields: [productId], references: [id]) // Relationship to Product
+  createdAt DateTime @default(now()) // Timestamp for creation
+  updatedAt DateTime @updatedAt // Timestamp for last update
+
+  @@unique([userId, productId]) // A user can only have one entry per product
+}
+
+model Payment {
+  id            String        @id @default(cuid()) // Unique identifier
+  orderId       String        @unique // ID of the order (must be unique for one-to-one)
+  order         Order         @relation(fields: [orderId], references: [id]) // Relationship to Order
+  amount        Float // Amount paid
+  paymentMethod String // Payment method (e.g., "Credit Card", "PayPal")
+  status        PaymentStatus @default(PENDING) // Status of the payment (e.g., PENDING, COMPLETED, FAILED)
+  createdAt     DateTime      @default(now()) // Timestamp for creation
+  updatedAt     DateTime      @updatedAt // Timestamp for last update
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
