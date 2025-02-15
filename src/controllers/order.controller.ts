@@ -5,7 +5,7 @@ import {
   sendSuccessNoDataResponse,
   sendSuccessResponse,
 } from "../utils/responseHandler";
-import { TOrder, TCreateOrder, TIdOrder } from "../types/general";
+import {  TCreateOrder, TIdOrder } from "../types/general";
 import { OrderStatus } from "@prisma/client";
 
 const orderService = new OrderService();

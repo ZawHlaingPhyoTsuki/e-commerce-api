@@ -25,17 +25,8 @@ model User {
   cart      CartItem[] // Items in the user's cart
   wishlist  WishlistItem[] // Items in the user's wishlist
   reviews   Review[] // Reviews written by the user
-  refreshTokens RefreshToken[] // Refresh tokens associated with the user
 }
 
-model RefreshToken {
-  id        Int      @id @default(autoincrement()) // Unique identifier
-  token     String   @unique // Refresh token (must be unique)
-  userId    String   // Foreign key to the User model
-  user      User     @relation(fields: [userId], references: [id]) // Relationship to User
-  createdAt DateTime @default(now()) // Timestamp for creation
-  updatedAt DateTime @updatedAt // Timestamp for last update
-}
 
 enum Role {
   USER

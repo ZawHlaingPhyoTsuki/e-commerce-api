@@ -2,14 +2,35 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "../utils/prisma.server";
 import { TIdUser } from "../types/general";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../utils/auth.utils";
 
 export class AuthService {
   public async register(username: string, email: string, password: string) {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      throw new Error("User already exists");
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: { username, email, password: hashedPassword },
     });
-    return { id: user.id, username: user.username, email: user.email };
+
+    // Generate tokens
+    const accessToken = generateAccessToken(user.id, user.role);
+    const refreshToken = generateRefreshToken(user.id, user.role);
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      accessToken,
+      refreshToken,
+    };
   }
 
   public async login(email: string, password: string) {
@@ -18,64 +39,28 @@ export class AuthService {
       throw new Error("Invalid credentials");
     }
 
-    // Generate access token
-    const accessToken = jwt.sign(
-      { userId: user.id, role: user.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: "15m" } // Short-lived access token
-    );
-
-    // Generate refresh token
-    const refreshToken = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_REFRESH_SECRET!,
-      { expiresIn: "7d" } // Long-lived refresh token
-    );
-
-    // Store refresh token in the database
-    await prisma.refreshToken.create({
-      data: {
-        token: refreshToken,
-        userId: user.id,
-      },
-    });
+    // Generate tokens
+    const accessToken = generateAccessToken(user.id, user.role);
+    const refreshToken = generateRefreshToken(user.id, user.role);
 
     return { accessToken, refreshToken };
   }
 
-  public async logout(userId: TIdUser) {
-    // Delete all refresh tokens for the user
-    await prisma.refreshToken.deleteMany({
-      where: { userId },
-    });
-  }
-
   public async refreshToken(refreshToken: string) {
-    // Verify the refresh token
-    const decoded = jwt.verify(
-      refreshToken,
-      process.env.JWT_REFRESH_SECRET!
-    ) as {
-      userId: string;
-    };
-
-    // Check if the refresh token exists in the database
-    const storedToken = await prisma.refreshToken.findUnique({
-      where: { token: refreshToken },
-    });
-
-    if (!storedToken) {
-      throw new Error("Invalid refresh token");
+    if (!refreshToken) {
+      throw new Error("No refresh token provided");
     }
 
+    // Verify the refresh token
+    const decoded = verifyRefreshToken(refreshToken) as {
+      userId: string;
+      role: string;
+    };
+    
     // Generate a new access token
-    const accessToken = jwt.sign(
-      { userId: decoded.userId },
-      process.env.JWT_SECRET!,
-      { expiresIn: "15m" }
-    );
+    const newAccessToken = generateAccessToken(decoded.userId, decoded.role);
 
-    return { accessToken };
+    return newAccessToken;
   }
 
   public async getCurrentUser(userId: TIdUser) {
