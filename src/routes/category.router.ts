@@ -12,8 +12,13 @@ import { createCategorySchema, updateCategorySchema } from "../types/zod";
 
 const router = express.Router();
 
+// GET /api/categories - Get all categories (Public)
 router.get("/", getAllCategories);
+
+// GET /api/categories/:id - Get a category by ID (Public)
 router.get("/:id", getCategoryById);
+
+// POST /api/categories - Create a new category (Admin Only)
 router.post(
   "/",
   isLogin,
@@ -21,6 +26,8 @@ router.post(
   validate(createCategorySchema),
   createCategory
 );
+
+// PUT /api/categories/:id - Update a category by ID (Admin Only)
 router.put(
   "/:id",
   isLogin,
@@ -28,6 +35,8 @@ router.put(
   validate(updateCategorySchema),
   updateCategory
 );
+
+// DELETE /api/categories/:id - Delete a category by ID (Admin Only)
 router.delete("/:id", isLogin, isAdmin, deleteCategory);
 
 export default router;

@@ -1,21 +1,39 @@
-import express from "express";
+import { Router } from "express";
 import {
-  getAllOrders,
-  getOrderById,
   createOrder,
+  getOrderById,
+  getOrdersByUserId,
+  getAllOrders,
   updateOrderStatus,
   deleteOrder,
 } from "../controllers/order.controller";
 import { isLogin, isAdmin } from "../middlewares/auth.middleware";
-import { validate } from "../middlewares/validate";
-import { createOrderSchema } from "../types/zod";
 
-const router = express.Router();
+const router = Router();
 
-router.get("/", isLogin, isAdmin, getAllOrders);
+// POST /api/orders - Create a new order (logged-in user)
+router.post("/", isLogin, createOrder);
+
+// GET /api/orders/user - Get orders by the logged-in user
+router.get("/user", isLogin, getOrdersByUserId);
+
+// GET /api/orders/:id - Get order by ID (logged-in user or admin)
 router.get("/:id", isLogin, getOrderById);
-router.post("/", isLogin, validate(createOrderSchema), createOrder);
-router.put("/:id/status", isLogin, isAdmin, updateOrderStatus);
+
+// GET /api/orders - Get all orders (admin only)
+router.get("/", isLogin, isAdmin, getAllOrders);
+
+// PUT /api/orders/:id - Update order status (admin only)
+router.put("/:id", isLogin, isAdmin, updateOrderStatus);
+
+const testing = () => {
+  console.log("testing");
+};
+
+// DELETE /api/orders/:id - Delete an order (admin only)
 router.delete("/:id", isLogin, isAdmin, deleteOrder);
 
 export default router;
+
+// REMAINDER
+// If you define /:id before /user, then /user will never be matched because /:id will catch it first.

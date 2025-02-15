@@ -10,10 +10,19 @@ import { isLogin } from "../middlewares/auth.middleware";
 
 const router = Router();
 
+// POST /api/auth/register - Register a new user (Public)
 router.post("/register", register);
+
+// POST /api/auth/login - Login a user (Public)
 router.post("/login", login);
+
+// POST /api/auth/logout - Logout a user (Logged-in user)
 router.post("/logout", isLogin, logout);
+
+// POST /api/auth/refresh-token - Refresh access token (Logged-in user)
 router.post("/refresh-token", refreshToken);
+
+// GET /api/auth/me - Get current user (Logged-in user)
 router.get("/me", isLogin, getCurrentUser);
 
 export default router;

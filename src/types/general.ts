@@ -2,6 +2,8 @@ import {
   CartItem,
   Category,
   Order,
+  OrderItem,
+  OrderStatus,
   Product,
   Review,
   User,
@@ -27,10 +29,30 @@ export type TCreateUser = Omit<TUser, "id" | "createdAt" | "updatedAt">;
 export type TUpdateUser = Partial<TCreateUser>;
 
 // ___________ Order _____________
-export type TOrder = Order;
-export type TIdOrder = Order["id"];
-export type TCreateOrder = Omit<TOrder, "id" | "createdAt" | "updatedAt">;
-export type TUpdateOrderAdmin = Partial<Pick<TOrder, "status">>;
+export type TOrder = {
+  id: string;
+  userId: string;
+  totalAmount: number;
+  status: OrderStatus;
+  items: OrderItem[];
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type TIdOrder = TOrder["id"];
+export type TCreateOrder = {
+  userId: string;
+  totalAmount: number;
+  status: OrderStatus;
+  items: {
+    productId: string;
+    quantity: number;
+    price: number;
+  }[];
+};
+export type TUpdateOrderStatus = {
+  status: OrderStatus;
+};
 
 // ___________ Wishlist _____________
 export type TWishlistItem = WishlistItem;
@@ -52,5 +74,5 @@ export type TUpdateCartItem = Omit<
 // ___________ Review _____________
 export type TReview = Review;
 export type TIdReview = TReview["id"];
-export type TUpdateReview = Omit<TReview, "createdAt" | "updatedAt">
+export type TUpdateReview = Omit<TReview, "createdAt" | "updatedAt">;
 export type TCreateReview = Omit<TReview, "id" | "createdAt" | "updatedAt">;
