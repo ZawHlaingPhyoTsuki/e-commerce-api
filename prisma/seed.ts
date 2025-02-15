@@ -1,6 +1,6 @@
-import { prisma } from './../src/utils/prisma.server';
+import { hashPassword } from "./../src/utils/auth.utils";
+import { prisma } from "./../src/utils/prisma.server";
 import { faker } from "@faker-js/faker";
-
 
 async function main() {
   console.log("🌱 Seeding database...");
@@ -19,12 +19,14 @@ async function main() {
 
   // Create Users
   const users = await Promise.all(
-    Array.from({ length: 10 }).map(() => {
+    Array.from({ length: 10 }).map(async () => {
+      const password = "admin";
+      const hashedPassword = await hashPassword(password);
       return prisma.user.create({
         data: {
           username: faker.internet.userName(),
           email: faker.internet.email(),
-          password: faker.internet.password(),
+          password: hashedPassword,
           role: faker.helpers.arrayElement(["USER", "ADMIN"]),
         },
       });
@@ -39,8 +41,8 @@ async function main() {
           name: faker.commerce.productName(),
           description: faker.commerce.productDescription(),
           price: parseFloat(faker.commerce.price()),
-          stock: faker.number.int({ min: 10, max: 100 }), 
-          images: [faker.image.url(), faker.image.url()], 
+          stock: faker.number.int({ min: 10, max: 100 }),
+          images: [faker.image.url(), faker.image.url()],
           categoryId: faker.helpers.arrayElement(categories).id,
         },
       });
@@ -66,7 +68,7 @@ async function main() {
     const orderItems = await Promise.all(
       Array.from({ length: 3 }).map(() => {
         const product = faker.helpers.arrayElement(products);
-        const quantity = faker.number.int({ min: 1, max: 5 }); 
+        const quantity = faker.number.int({ min: 1, max: 5 });
         const price = product.price * quantity;
         totalAmount += price;
 
@@ -95,7 +97,7 @@ async function main() {
         data: {
           userId: user.id,
           productId: faker.helpers.arrayElement(products).id,
-          quantity: faker.number.int({ min: 1, max: 5 }), 
+          quantity: faker.number.int({ min: 1, max: 5 }),
         },
       });
     })
@@ -120,7 +122,7 @@ async function main() {
         data: {
           userId: faker.helpers.arrayElement(users).id,
           productId: faker.helpers.arrayElement(products).id,
-          rating: faker.number.int({ min: 1, max: 5 }), 
+          rating: faker.number.int({ min: 1, max: 5 }),
           comment: faker.lorem.sentence(),
         },
       });

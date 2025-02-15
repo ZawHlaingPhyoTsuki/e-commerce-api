@@ -44,9 +44,13 @@ export type TCreateWishlistItem = Omit<
 export type TCartItem = CartItem;
 export type TIdCartItem = TCartItem["id"];
 export type TCreateCartItem = Omit<TCartItem, "id" | "createdAt" | "updatedAt">;
-export type TUpdateCartItem = Omit<TCartItem, "createdAt" | "updatedAt" | "productId">;
+export type TUpdateCartItem = Omit<
+  TCartItem,
+  "createdAt" | "updatedAt" | "productId"
+>;
 
 // ___________ Review _____________
 export type TReview = Review;
-export type TIdReview = Review["id"];
+export type TIdReview = TReview["id"];
+export type TUpdateReview = Omit<TReview, "createdAt" | "updatedAt">
 export type TCreateReview = Omit<TReview, "id" | "createdAt" | "updatedAt">;

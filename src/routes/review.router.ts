@@ -1,17 +1,33 @@
-import express from "express";
+import { Router } from "express";
 import {
   getReviewsByProductId,
-  createReview,
+  getReviewsByUserId,
+  addReview,
+  updateReview,
   deleteReview,
+  getAllReviews,
 } from "../controllers/review.controller";
-import { isLogin } from "../middlewares/auth.middleware";
-import { validate } from "../middlewares/validate";
-import { createReviewSchema } from "../types/zod";
+import { isAdmin, isLogin } from "../middlewares/auth.middleware";
 
-const router = express.Router();
 
-router.get("/product/:productId", getReviewsByProductId);
-router.post("/", isLogin, validate(createReviewSchema), createReview);
+const router = Router();
+
+// GET /api/reviews/product/:productId - Get reviews for a product (public)
+router.get("/products/:productId", getReviewsByProductId);
+
+// GET /api/reviews/user - Get reviews by the logged-in user
+router.get("/user", isLogin, getReviewsByUserId);
+
+// GET /api/reviews - Get all reviews (admin only)
+router.get("/", isLogin, isAdmin, getAllReviews);
+
+// POST /api/reviews - Add a new review (logged-in user)
+router.post("/", isLogin, addReview);
+
+// PUT /api/reviews/:id - Update a review (logged-in user)
+router.put("/:id", isLogin, updateReview);
+
+// DELETE /api/reviews/:id - Delete a review (logged-in user or admin)
 router.delete("/:id", isLogin, deleteReview);
 
 export default router;
