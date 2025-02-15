@@ -17,10 +17,31 @@ export class WishlistService {
   public async addToWishlist(
     data: TCreateWishlistItem
   ): Promise<TWishlistItem> {
-    return await prisma.wishlistItem.create({ data });
+    const { userId, productId } = data;
+
+    // Check if the item already exists in the wishlist
+    const existingWishlistItem = await prisma.wishlistItem.findUnique({
+      where: { userId_productId: { userId, productId } },
+    });
+
+    if (existingWishlistItem) {
+      // If it exists, return it
+      return existingWishlistItem;
+    }
+
+    // Otherwise, create a new wishlist item
+    return await prisma.wishlistItem.create({
+      data,
+    });
   }
 
-  public async removeFromWishlist(id: TIdWishlistItem): Promise<void> {
-    await prisma.wishlistItem.delete({ where: { id } });
+  public async removeFromWishlist(
+    wishlistItemId: TIdWishlistItem
+  ): Promise<void> {
+    await prisma.wishlistItem.delete({ where: { id: wishlistItemId } });
+  }
+
+  public async clearWishlist(userId: TIdUser): Promise<void> {
+    await prisma.wishlistItem.deleteMany({ where: { userId } });
   }
 }
