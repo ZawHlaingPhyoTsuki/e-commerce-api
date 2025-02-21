@@ -6,6 +6,7 @@ import {
   OrderStatus,
   Product,
   Review,
+  Role,
   User,
   WishlistItem,
 } from "@prisma/client";
@@ -25,8 +26,14 @@ export type TUpdateCategory = Partial<TCreateCategory>;
 // ___________ User _____________
 export type TUser = User;
 export type TIdUser = User["id"];
-export type TCreateUser = Omit<TUser, "id" | "createdAt" | "updatedAt">;
+export type TCreateUser = {
+  username: string;
+  email: string;
+  password: string;
+  role?: Role
+}
 export type TUpdateUser = Partial<TCreateUser>;
+export type TUpdateCurrentUser = Omit<TUpdateUser, "role">
 
 // ___________ Order _____________
 export type TOrder = {

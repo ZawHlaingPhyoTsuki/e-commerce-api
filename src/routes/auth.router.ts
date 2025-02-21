@@ -5,6 +5,8 @@ import {
   logout,
   getCurrentUser,
   refreshToken,
+  updateCurrentUser,
+  deleteCurrentUser,
 } from "../controllers/auth.controller";
 import { isLogin } from "../middlewares/auth.middleware";
 
@@ -24,5 +26,11 @@ router.post("/refresh-token", refreshToken);
 
 // GET /api/auth/me - Get current user (Logged-in user)
 router.get("/me", isLogin, getCurrentUser);
+
+// PUT /api/auth/me - Edit current user profile (Logged-in user)
+router.put("/me", isLogin, updateCurrentUser);
+
+// DELETE /api/auth/me - Delete current user (Logged-in user)
+router.delete("/me", isLogin, deleteCurrentUser);
 
 export default router;

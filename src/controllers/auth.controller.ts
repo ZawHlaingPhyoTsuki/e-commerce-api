@@ -5,7 +5,7 @@ import {
   sendSuccessResponse,
 } from "../utils/responseHandler";
 import { AuthService } from "../services/auth.service";
-import { TIdUser } from "../types/general";
+import { TIdUser, TUpdateCurrentUser } from "../types/general";
 import { send } from "process";
 
 const authService = new AuthService();
@@ -76,5 +76,29 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     sendSuccessResponse(res, user);
   } catch (error: any) {
     sendErrorResponse(res, "Error getting current user", 400);
+  }
+};
+
+export const updateCurrentUser = async (req: Request, res: Response) => {
+  try {
+    // Get user ID from token (req.user from mi)
+    const userId: TIdUser = req.user?.userId;
+    const updatedData : TUpdateCurrentUser = req.body;
+    const user = await authService.updateCurrentUser(userId, updatedData);
+    sendSuccessResponse(res, user);
+  } catch (error: any) {
+    sendErrorResponse(res, "Error updating current user", 400);
+  }
+};
+
+export const deleteCurrentUser = async (req: Request, res: Response) => {
+  try {
+    // Get user ID from token (req.user from mi)
+    const userId: TIdUser = req.user?.userId;
+    await authService.deleteCurrentUser(userId);
+    sendSuccessNoDataResponse(res, "User deleted successfully");
+  } catch (error: any) {
+    sendErrorResponse(res, error.message , 400);
+    // console.log(error.message)
   }
 };

@@ -50,31 +50,17 @@ export const sendNotFoundResponse = <T>(
 };
 
 // Validation Error response
-// export const sendValidationError = <T>(
-//   res: Response,
-//   message: T,
-//   errors: string[],
-//   status = HttpStatusCode.BAD_REQUEST
-// ): Response<ErrorResponse<T>> => {
-//   return res.status(status).json({
-//     success: false,
-//     error: {
-//       message: message,
-//       errors: errors,
-//     },
-//   });
-// };
 export const sendValidationError = <T>(
   res: Response,
   message: T,
-  errors: { path: string; message: string }[], // Array of objects with path and message
+  errors: string[],
   status = HttpStatusCode.BAD_REQUEST
-): Response => {
+): Response<ErrorResponse<T>> => {
   return res.status(status).json({
     success: false,
     error: {
       message: message,
-      errors: errors, // Return errors as an array of objects
+      errors: errors,
     },
   });
 };

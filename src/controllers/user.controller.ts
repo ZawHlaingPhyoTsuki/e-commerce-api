@@ -5,7 +5,7 @@ import {
   sendSuccessNoDataResponse,
   sendSuccessResponse,
 } from "../utils/responseHandler";
-import { TIdUser, TUpdateUser } from "../types/general";
+import { TCreateUser, TIdUser, TUpdateUser } from "../types/general";
 
 const userService = new UserService();
 
@@ -22,6 +22,16 @@ export const getUserById = async (req: Request, res: Response) => {
   try {
     const userId : TIdUser = req.params.id;
     const user = await userService.getUserById(userId);
+    sendSuccessResponse(res, user);
+  } catch (error: any) {
+    sendErrorResponse(res, error.message);
+  }
+};
+
+export const createUser = async (req: Request, res: Response) => {
+  try {
+    const userData : TCreateUser = req.body;
+    const user = await userService.createUser(userData);
     sendSuccessResponse(res, user);
   } catch (error: any) {
     sendErrorResponse(res, error.message);

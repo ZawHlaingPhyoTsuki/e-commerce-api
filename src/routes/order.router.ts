@@ -26,10 +26,6 @@ router.get("/", isLogin, isAdmin, getAllOrders);
 // PUT /api/orders/:id - Update order status (admin only)
 router.put("/:id", isLogin, isAdmin, updateOrderStatus);
 
-const testing = () => {
-  console.log("testing");
-};
-
 // DELETE /api/orders/:id - Delete an order (admin only)
 router.delete("/:id", isLogin, isAdmin, deleteOrder);
 
@@ -37,3 +33,5 @@ export default router;
 
 // REMAINDER
 // If you define /:id before /user, then /user will never be matched because /:id will catch it first.
+// Also if you try to delete the Order model that has one to many relationship with the OrderItem model, you will get an error.
+// So you need to delete the OrderItem model first.

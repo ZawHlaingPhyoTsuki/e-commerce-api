@@ -4,10 +4,9 @@ import {
   getUserById,
   updateUser,
   deleteUser,
+  createUser,
 } from "../controllers/user.controller";
 import { isLogin, isAdmin } from "../middlewares/auth.middleware";
-import { validate } from "../middlewares/validate";
-import { updateUserSchema } from "../types/zod";
 
 const router = express.Router();
 
@@ -15,10 +14,13 @@ const router = express.Router();
 router.get("/", isLogin, isAdmin, getAllUsers);
 
 // GET /api/users/:id - Get a user by ID (Admin only)
-router.get("/:id", isLogin, getUserById);
+router.get("/:id", isLogin, isAdmin, getUserById);
+
+// POST /api/users - Create a new user (Admin only)
+router.post("/", isLogin, isAdmin, createUser);
 
 // PUT /api/users/:id - Update a user by ID (Admin only)
-router.put("/:id", isLogin, validate(updateUserSchema), updateUser);
+router.put("/:id", isLogin, isAdmin, updateUser);
 
 // DELETE /api/users/:id - Delete a user by ID (Admin only)
 router.delete("/:id", isLogin, isAdmin, deleteUser);
