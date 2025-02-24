@@ -7,7 +7,7 @@ export const hashPassword = async (password: string)=> {
   return hashedPassword;
 };
 
-const ACCESS_SECRET = process.env.JWT_SECRET!;
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
 
 export const generateAccessToken = (userId: string, role: string) => {

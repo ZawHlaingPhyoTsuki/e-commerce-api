@@ -16,7 +16,7 @@ export const isLogin = (req: Request, res: Response, next: NextFunction) => {
 
   try {
     if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as {
         userId: string;
         role: string;
       };
